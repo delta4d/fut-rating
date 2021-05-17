@@ -3,7 +3,7 @@ name = "fut_rating"
 
 [package]
 name = "fut-rating"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["delta <delta4d@gmail.com>"]
 edition = "2018"
 description = "Fut rating helper"
@@ -15,5 +15,6 @@ keywords = ["game", "fut"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-itertools = "0.10.0"
-clap = "2.33.3"
+itertools = "^0.10"
+clap = "^2.33"
+prettytable-rs = "^0.8"

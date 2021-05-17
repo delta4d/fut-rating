@@ -1,4 +1,8 @@
+#[macro_use]
+extern crate prettytable;
+
 use itertools::Itertools;
+use prettytable::{format, Table};
 use std::collections::HashSet;
 
 const NUM_SQUAD: usize = 11;
@@ -32,7 +36,10 @@ pub fn generate(
     let mut sorted_cand = cand.clone();
     sorted_cand.sort();
 
-    for bench in (0..remain).map(|_| sorted_cand.clone()).multi_cartesian_product() {
+    for bench in (0..remain)
+        .map(|_| sorted_cand.clone())
+        .multi_cartesian_product()
+    {
         let mut squad = have.clone();
         squad.extend(&bench);
 
@@ -58,25 +65,44 @@ pub fn generate(
 }
 
 pub fn show(cand: Vec<u32>, possibles: Vec<Vec<u32>>) {
+    let mut table = Table::new();
+    table.set_format(*format::consts::FORMAT_CLEAN);
+
     let mut cand = cand;
     cand.sort();
 
+    const SEP: &str = "      ";
+    const WIDTH: usize = 2;
+
     let header = cand
         .iter()
-        .map(|x| x.to_string())
+        .map(|x| format!("{:<w$}", x, w=WIDTH))
         .collect::<Vec<_>>()
-        .join("\t");
-    println!("{}", header);
-    println!("{}", "-".repeat((cand.len() - 1) * 8 + header.len()));
+        .join(SEP);
 
-    for ratings in possibles {
+    table.add_row(row![FdBbbl->header]);
+
+    for (pos, ratings) in possibles.iter().enumerate() {
         let row = cand
             .iter()
-            .map(|x| ratings.iter().filter(|&y| y == x).count().to_string())
+            .map(|x| {
+                let r = ratings.iter().filter(|&y| y == x).count();
+                if r == 0 {
+                    "  ".to_string()
+                } else {
+                    format!("{:<w$}", r, w=WIDTH)
+                }
+            })
             .collect::<Vec<_>>()
-            .join("\t");
-        println!("{}", row);
+            .join(SEP);
+        if pos % 2 == 0 {
+            table.add_row(row![Fcl->row]);
+        } else {
+            table.add_row(row![FdBcl->row]);
+        }
     }
+
+    table.printstd();
 }
 
 #[cfg(test)]
